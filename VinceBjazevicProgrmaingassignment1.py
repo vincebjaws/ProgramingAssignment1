@@ -3,6 +3,8 @@ Author: Vince Bjazevic
 Class: CPSC 481
 Due Date: Sept 28, 2023
 """
+import json
+
 class ticTacToeState:
     def __init__(self,state,player,parent=None):
         self.state = state
@@ -15,6 +17,8 @@ def bfs(root_node):
     #create queue and visited list
     visited = []
     queue = []
+    #create gametree for json output
+    tree = []
     queue.append(root_node)
 
     #while queue is not empty traverse laterally
@@ -31,24 +35,27 @@ def bfs(root_node):
             continue
         #print current state
         print("current node:")
-        print_current_state(root_node.state)
+        print_current_state(state_to_examine.state)
+        tree.append({"Current State":state_to_examine.state})
         #get children of state
         state_to_examine.children = create_new_states(state_to_examine.state, state_to_examine.player)
         for i in range(len(state_to_examine.children)):
             queue.append(state_to_examine.children[i])
         print("current adjecent node(s):")
         print_adj_states(state_to_examine.children)
-
+    return tree
+"""
 #implement dfs on tictactoe(state, player)
 def dfs(root_node):
+
     #create queue and visited list
     visited = []
     queue = []
 
     #while queue is not empty traverse laterally
     while queue:
-        #remove first state
-        state_to_examine = queue.pop(0)
+        #remove last state
+        state_to_examine = queue.pop()
         #check if not a repeating board state
         board_state = state_to_examine.state
         if board_state in visited:
@@ -62,13 +69,11 @@ def dfs(root_node):
         print_current_state(root_node.state)
         #get children of state
         state_to_examine.children = create_new_states(state_to_examine.state, state_to_examine.player)
-        for i in range(len(state_to_examine.children)):
-            queue.append(state_to_examine.children[i])
-        print("current adjecent node(s):")
-        print_adj_states(state_to_examine.children)
+        for i in reversed(state_to_examine.children):
+            queue.append(i)
 
     #traverse one first child first then so on
-
+"""
 #check if winning state
 def end_state(test_end_state):
     if test_end_state[0] != " " and test_end_state[0] == test_end_state[1] and test_end_state[0] == test_end_state[2]:
@@ -130,16 +135,10 @@ def create_new_states(cur_state, player):
             state_to_be_added[i] = player
             child_states.append(ticTacToeState(state_to_be_added, next_player, parent=cur_state))
     return child_states
-             
 
 def main():
 
     start = ticTacToeState([" ", " ", " ", " ", " ", " ", " ", " ", " "], "O")
-
-
-
-
-
     """
     # TESTS
 
@@ -151,8 +150,6 @@ def main():
     print_current_state(start.state)
     print("current adjecent node(s):")
     print_adj_states(states_to_be_printed)
-
-
     
     test_state = ticTacToeState(["O","X","O","O", "X", "X", "O"," ", " "],"O")
 
@@ -166,6 +163,10 @@ def main():
     """
     #test bfs
     test_state = ticTacToeState(["O","X","O","O", "X", "X", " "," ", " "],"O")
-    bfs(test_state)
+    data = bfs(start)
+    
+    with open("data.json", "w") as f:
+        json.dump(data, f, indent=1) 
+
 if __name__ == "__main__":
     main()  
